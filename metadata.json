@@ -1,0 +1,5 @@
+{
+  "name": "DorkSearch MVP",
+  "description": "A comprehensive Google Dork generator for security research and OSINT, featuring a manual builder, prebuilt templates, and AI-powered dork generation.",
+  "requestFramePermissions": []
+}

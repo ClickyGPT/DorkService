@@ -1,0 +1,212 @@
+
+import { DorkCategory, DorkOperator } from './types';
+
+export const OPERATORS: DorkOperator[] = [
+  { name: 'site:', label: 'Site', description: 'Limit search to a specific domain or TLD.' },
+  { name: 'inurl:', label: 'In URL', description: 'Search for pages where the URL contains the keyword.' },
+  { name: 'allinurl:', label: 'All In URL', description: 'Restricts results to those containing all query terms in the URL.' },
+  { name: 'intitle:', label: 'In Title', description: 'Search for pages where the title contains the keyword.' },
+  { name: 'intext:', label: 'In Text', description: 'Search for keywords within the body text of the page.' },
+  { name: 'filetype:', label: 'File Type', description: 'Filter results by specific file extensions (e.g., pdf, env).' },
+  { name: 'ext:', label: 'Extension', description: 'An alias for the filetype operator.' },
+  { name: 'cache:', label: 'Cache', description: 'Display the version of the page cached by Google.' },
+  { name: 'related:', label: 'Related', description: 'Find websites that are similar to a specific URL.' },
+  { name: 'link:', label: 'Link', description: 'Search for pages that contain links to a specific URL.' },
+];
+
+export const FILE_TYPES = [
+  'pdf', 'xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'txt', 'xml', 'json', 'sql', 'env', 'log', 'config', 'bak', 'pem', 'key'
+];
+
+export const PREBUILT_CATEGORIES: DorkCategory[] = [
+  {
+    id: 'footholds',
+    title: 'Footholds',
+    description: 'Find entry points, login portals, and signup pages.',
+    icon: 'DoorOpen',
+    dorks: [
+      { title: 'Admin Login Portals', query: 'inurl:admin intext:"login"', description: 'Finds generic admin login pages.' },
+      { title: 'Wordpress Admin', query: 'inurl:wp-login.php', description: 'Locates standard Wordpress login portals.' },
+      { title: 'Signup Pages', query: 'inurl:signup OR inurl:register site:example.com', description: 'Finds registration pages for a target.' },
+      { title: 'CPanel Login', query: 'inurl:2082 "login" OR inurl:2083 "login"', description: 'Identifies CPanel hosting management interfaces.' },
+      { title: 'Jira Login', query: 'inurl:/Dashboard.jspa intext:"Atlassian Jira"', description: 'Exposed Jira dashboards.' },
+      { title: 'Kibana Dashboard', query: 'inurl:_plugin/kibana intext:"Loading Kibana"', description: 'Open Kibana instances.' },
+      { title: 'Jenkins', query: 'intitle:"Dashboard [Jenkins]"', description: 'Exposed Jenkins CI/CD servers.' },
+      { title: 'GitLab Sign in', query: 'inurl:users/sign_in intext:"GitLab"', description: 'GitLab login pages.' },
+      { title: 'Grafana', query: 'intitle:"Grafana" inurl:"/login"', description: 'Grafana monitoring login.' },
+      { title: 'Pulse Secure VPN', query: 'inurl:/dana-na/ auth/url_default/welcome.cgi', description: 'Pulse Secure VPN portals.' }
+    ]
+  },
+  {
+    id: 'financial',
+    title: 'Financial Information',
+    description: 'Search for exposed financial data, invoices, and reports.',
+    icon: 'FileWarning',
+    dorks: [
+      { title: 'Invoices (PDF)', query: 'filetype:pdf intext:"invoice" "amount due"', description: 'Finds PDF invoices.' },
+      { title: 'Credit Card Numbers', query: 'filetype:xls intext:"credit card" OR intext:"cc num"', description: 'Spreadsheets containing credit card keywords.' },
+      { title: 'Salary Spreadsheets', query: 'filetype:xlsx intext:"salary" "bonus" "ssn"', description: 'Excel files with salary info.' },
+      { title: 'Bitcoin Wallets', query: 'filetype:dat "wallet.dat"', description: 'Potential Bitcoin wallet files.' },
+      { title: 'Stripe API Keys', query: 'intext:"sk_live_" filetype:env', description: 'Exposed Stripe live keys.' },
+      { title: 'Financial Reports', query: 'filetype:pdf "financial report" "confidential"', description: 'Confidential financial reporting.' },
+      { title: 'Tax Returns', query: 'filetype:pdf "tax return" "1040"', description: 'US Tax return documents.' },
+      { title: 'Purchase Orders', query: 'filetype:doc "purchase order" "po number"', description: 'Word documents for purchase orders.' },
+      { title: 'Budget Sheets', query: 'filetype:xls "budget" "forecast" "confidential"', description: 'Internal budget spreadsheets.' },
+      { title: 'Payment Receipts', query: 'inurl:receipt filetype:pdf "total"', description: 'Digital payment receipts.' },
+      { title: 'Bank Statements', query: 'filetype:pdf "bank statement" "account number"', description: 'Bank account statements.' },
+      { title: 'Payroll Logs', query: 'filetype:log "payroll" "transaction"', description: 'System logs mentioning payroll.' },
+      { title: 'Venmo Logs', query: 'intext:"venmo" filetype:csv "transaction"', description: 'Transaction exports.' },
+      { title: 'Quickbooks Backup', query: 'filetype:qbb OR filetype:qbm', description: 'Quickbooks backup files.' },
+      { title: 'SWIFT Codes', query: 'filetype:xls "swift code" "iban"', description: 'Banking transfer details.' },
+      { title: 'Audit Reports', query: 'filetype:pdf "audit report" "internal use only"', description: 'Internal audit documents.' },
+      { title: 'Insurance Policies', query: 'filetype:pdf "insurance policy" "policy number"', description: 'Insurance policy documents.' },
+      { title: 'Stock Options', query: 'filetype:pdf "stock option agreement"', description: 'Employee stock option agreements.' },
+      { title: 'Wire Transfer', query: 'filetype:pdf "wire transfer" "beneficiary"', description: 'Wire transfer confirmations.' },
+      { title: 'Donation Lists', query: 'filetype:xls "donors" "amount"', description: 'Lists of donors and amounts.' },
+      { title: 'Expense Reports', query: 'filetype:xlsx "expense report" "reimbursement"', description: 'Employee expense reports.' }
+    ]
+  },
+  {
+    id: 'errors',
+    title: 'Error Messages',
+    description: 'Find verbose error messages that leak system info.',
+    icon: 'AlertTriangle',
+    dorks: [
+      { title: 'SQL Syntax Errors', query: 'intext:"You have an error in your SQL syntax"', description: 'Indicates potential SQL injection vulnerability.' },
+      { title: 'PHP Errors', query: 'intext:"Warning: mysql_connect()"', description: 'Exposed PHP database connection errors.' },
+      { title: 'Java Stack Traces', query: 'filetype:log "java.lang.NullPointerException"', description: 'Leaked Java application stack traces.' },
+      { title: 'Django Debug', query: 'intext:"DisallowedHost at /" "Django"', description: 'Django debug page leaks.' },
+      { title: 'Laravel Ignition', query: 'intext:"Ignition" intext:"Laravel" inurl:"_ignition"', description: 'Laravel error page (Ignition).' },
+      { title: 'Rails Action Controller', query: 'intext:"Action Controller: Exception caught"', description: 'Ruby on Rails error pages.' },
+      { title: 'ASP.NET Error', query: 'intext:"Server Error in \'/\' Application."', description: 'Default ASP.NET error page.' },
+      { title: 'Fatal Error PHP', query: 'intext:"Fatal error: Call to undefined function"', description: 'Severe PHP execution errors.' },
+      { title: 'MySQL Warning', query: 'intext:"Warning: mysql_fetch_array()"', description: 'MySQL specific PHP warning.' },
+      { title: 'PostgreSQL Error', query: 'intext:"Warning: pg_connect():"', description: 'PostgreSQL connection issues.' },
+      { title: 'MongoDB Error', query: 'intext:"MongoConnectionException"', description: 'MongoDB connection exceptions.' },
+      { title: 'Node.js Error', query: 'intext:"ReferenceError:" intext:"at"', description: 'Node.js stack traces in text.' },
+      { title: 'Python Traceback', query: 'intext:"Traceback (most recent call last):"', description: 'Python error dump.' },
+      { title: 'OOM Error', query: 'intext:"OutOfMemoryError"', description: 'Java Out of Memory error.' },
+      { title: 'Struts Exception', query: 'intext:"Struts Problem Report"', description: 'Apache Struts error reporting.' },
+      { title: 'ColdFusion Error', query: 'intext:"Error Occurred While Processing Request" intext:"ColdFusion"', description: 'Adobe ColdFusion error.' },
+      { title: 'Tomcat 404', query: 'intitle:"Apache Tomcat" intext:"Error report"', description: 'Tomcat default error pages.' },
+      { title: 'Nginx 500', query: 'intitle:"500 Internal Server Error" "nginx"', description: 'Generic Nginx server error.' },
+      { title: 'Docker Logs', query: 'filetype:log "docker" "error"', description: 'Docker container error logs.' },
+      { title: 'Redis Error', query: 'intext:"ERR operation not permitted"', description: 'Redis authentication errors.' },
+      { title: 'Elasticsearch Error', query: 'intext:"root_cause" "type" "reason"', description: 'Elasticsearch JSON error response.' }
+    ]
+  },
+  {
+    id: 'versions',
+    title: 'Vulnerable Software',
+    description: 'Identify outdated software versions and dashboards.',
+    icon: 'DoorOpen',
+    dorks: [
+      { title: 'Apache Version', query: 'intitle:"Apache Status" "Apache/2.4"', description: 'Apache server status page with version.' },
+      { title: 'WordPress Version', query: 'inurl:readme.html intext:"Version"', description: 'WordPress readme file showing version.' },
+      { title: 'Joomla Version', query: 'inurl:README.txt intext:"Joomla! 3"', description: 'Joomla text file leaks version.' },
+      { title: 'Drupal Version', query: 'intext:"Drupal" inurl:CHANGELOG.txt', description: 'Drupal changelog.' },
+      { title: 'vBulletin Version', query: 'intext:"Powered by vBulletin" intext:"Version 5"', description: 'vBulletin forum software.' },
+      { title: 'XAMPP Dashboard', query: 'intitle:"Welcome to XAMPP"', description: 'Default XAMPP dashboard.' },
+      { title: 'WAMP Server', query: 'intitle:"WAMPSERVER Homepage"', description: 'WAMP local server exposed.' },
+      { title: 'Ammyy Admin', query: 'intitle:"Ammyy Admin" intext:"Connected"', description: 'Remote desktop web interface.' },
+      { title: 'Webmin', query: 'intitle:"Login to Webmin"', description: 'Webmin server management interface.' },
+      { title: 'phpMyAdmin', query: 'intitle:"phpMyAdmin" intext:"Welcome to phpMyAdmin"', description: 'Database management tool.' },
+      { title: 'Swagger UI', query: 'intitle:"Swagger UI" intext:"api"', description: 'Exposed API documentation.' },
+      { title: 'RabbitMQ', query: 'intitle:"RabbitMQ Management"', description: 'Message broker management.' },
+      { title: 'Solr Admin', query: 'intitle:"Solr Admin"', description: 'Solr search server admin.' },
+      { title: 'SonarQube', query: 'intitle:"SonarQube" intext:"Projects"', description: 'Code quality tool.' },
+      { title: 'Ganglia', query: 'intitle:"Ganglia" intext:"Cluster Report"', description: 'Monitoring system.' },
+      { title: 'Nagios', query: 'intitle:"Nagios Core" intext:"daemon is running"', description: 'Nagios network monitoring.' },
+      { title: 'Zabbix', query: 'intitle:"Zabbix" intext:"Username"', description: 'Zabbix monitoring login.' },
+      { title: 'Splunk', query: 'intitle:"Splunk" "Login"', description: 'Splunk data platform.' },
+      { title: 'Hadoop', query: 'intitle:"Hadoop" "Browse Directory"', description: 'Hadoop file browser.' },
+      { title: 'OpenShift', query: 'intitle:"OpenShift Web Console"', description: 'Red Hat OpenShift console.' },
+      { title: 'Kubernetes', query: 'intitle:"Kubernetes Dashboard"', description: 'K8s dashboard.' }
+    ]
+  },
+  {
+    id: 'credentials',
+    title: 'Usernames & Passwords',
+    description: 'Hunt for leaked credentials, keys, and secrets.',
+    icon: 'FolderOpen',
+    dorks: [
+      { title: 'DB Passwords', query: 'filetype:env "DB_PASSWORD"', description: 'Environment files with db passwords.' },
+      { title: 'AWS Keys', query: 'filetype:txt "aws_access_key_id"', description: 'Text files with AWS keys.' },
+      { title: 'SSH Private Keys', query: 'intitle:"index of" "id_rsa"', description: 'Exposed SSH private keys.' },
+      { title: 'OpenVPN Config', query: 'filetype:ovpn "client"', description: 'OpenVPN client configurations.' },
+      { title: 'Filezilla XML', query: 'filetype:xml "Pass" "User" "FileZilla"', description: 'Filezilla connection settings.' },
+      { title: 'WinSCP Ini', query: 'filetype:ini "WinSCP" "Password"', description: 'WinSCP saved sessions.' },
+      { title: 'Bash History', query: 'intitle:"index of" ".bash_history"', description: 'Linux command history.' },
+      { title: 'MySQL History', query: 'intitle:"index of" ".mysql_history"', description: 'MySQL command history.' },
+      { title: 'Docker Config', query: 'filetype:json "config.json" "auths" "docker"', description: 'Docker auth config.' },
+      { title: 'NPMrc', query: 'filetype:npmrc "_auth"', description: 'NPM authentication tokens.' },
+      { title: 'DBeaver', query: 'filetype:json "dbeaver-data-sources.json"', description: 'DBeaver database credentials.' },
+      { title: 'Kube Config', query: 'filetype:yaml "apiVersion: v1" "kind: Config" "users"', description: 'Kubernetes kubeconfig files.' },
+      { title: 'Pgpass', query: 'inurl:".pgpass"', description: 'PostgreSQL password file.' },
+      { title: 'Shadow File', query: 'intitle:"index of" "etc/shadow"', description: 'Linux shadow password file.' },
+      { title: 'Htpasswd', query: 'filetype:htpasswd', description: 'Apache HTTP basic auth passwords.' },
+      { title: 'Git Credentials', query: 'inurl:".git-credentials"', description: 'Git saved credentials.' },
+      { title: 'RDP Files', query: 'filetype:rdp', description: 'Remote Desktop Connection files.' },
+      { title: 'KeePass DB', query: 'filetype:kdbx', description: 'KeePass password database.' },
+      { title: 'LastPass Export', query: 'filetype:csv "url" "username" "password" "grouping"', description: 'LastPass CSV export.' },
+      { title: 'Bitwarden Export', query: 'filetype:json "encrypted" "bitwarden"', description: 'Bitwarden vault export.' },
+      { title: 'Slack Tokens', query: 'intext:"xoxb-" OR intext:"xoxp-"', description: 'Leaked Slack API tokens.' }
+    ]
+  },
+  {
+    id: 'files',
+    title: 'Vulnerable Files',
+    description: 'Locate exposed configuration files, logs, and backups.',
+    icon: 'FileWarning',
+    dorks: [
+      { title: 'Exposed Environment Files', query: 'filetype:env "DB_PASSWORD"', description: 'Finds .env files often containing secrets.' },
+      { title: 'SQL Dumps', query: 'filetype:sql "INSERT INTO" "VALUES"', description: 'Locates database export files.' },
+      { title: 'Log Files', query: 'filetype:log intext:"password" OR intext:"username"', description: 'Searches for log files containing credentials.' },
+      { title: 'Git Configuration', query: 'inurl:".git/config"', description: 'Exposed git configuration directories.' },
+      { title: 'Docker Compose', query: 'filetype:yml "docker-compose" "password"', description: 'Docker compose files with secrets.' },
+      { title: 'Package.json', query: 'filetype:json "package.json" "scripts"', description: 'Node.js package manifest.' },
+      { title: 'Web Config', query: 'filetype:config "web.config" "connectionString"', description: 'ASP.NET web configuration.' },
+      { title: 'Apache Htaccess', query: 'filetype:htaccess', description: 'Apache access configuration.' },
+      { title: 'Nginx Conf', query: 'filetype:conf "nginx.conf"', description: 'Nginx global configuration.' },
+      { title: 'Sitemap', query: 'filetype:xml "sitemap.xml"', description: 'Site structure map.' },
+      { title: 'Robots.txt', query: 'filetype:txt "robots.txt" "Disallow:"', description: 'Search engine crawling rules.' },
+      { title: 'Crossdomain', query: 'filetype:xml "crossdomain.xml"', description: 'Flash cross-domain policy.' },
+      { title: 'Client Access Policy', query: 'filetype:xml "clientaccesspolicy.xml"', description: 'Silverlight access policy.' },
+      { title: 'Backup Files', query: 'ext:bak OR ext:old OR ext:backup', description: 'Generic backup files.' },
+      { title: 'Zip Archives', query: 'filetype:zip "backup"', description: 'Zipped backup archives.' },
+      { title: 'Tar Archives', query: 'filetype:tar "backup"', description: 'Tarball archives.' },
+      { title: 'Gz Archives', query: 'filetype:gz "dump"', description: 'Gzipped database dumps.' },
+      { title: '7z Archives', query: 'filetype:7z "secret"', description: '7-Zip archives.' },
+      { title: 'Rar Archives', query: 'filetype:rar "pass"', description: 'RAR archives.' },
+      { title: 'Iso Images', query: 'filetype:iso "confidential"', description: 'Disk images.' }
+    ]
+  },
+  {
+    id: 'directories',
+    title: 'Sensitive Directories',
+    description: 'Uncover open directories and index pages.',
+    icon: 'FolderOpen',
+    dorks: [
+      { title: 'Open Directories', query: 'intitle:"index of /" "parent directory"', description: 'Standard open directory listing.' },
+      { title: 'Backup Directories', query: 'intitle:"index of" "backup" OR "old"', description: 'Directories often containing backup data.' },
+      { title: 'Uploads Folder', query: 'intitle:"index of" "uploads" OR "images"', description: 'Exposed upload directories.' },
+      { title: 'Mail Archives', query: 'intitle:"index of" "mail" OR "inbox"', description: 'Exposed email archives.' },
+      { title: 'DCIM Photos', query: 'intitle:"index of" "DCIM"', description: 'Digital camera image directories.' },
+      { title: 'FTP Root', query: 'intitle:"index of" "ftp"', description: 'FTP root directories.' },
+      { title: 'Admin Directory', query: 'intitle:"index of" "admin"', description: 'Administrative folders.' },
+      { title: 'Documents', query: 'intitle:"index of" "documents" OR "my documents"', description: 'Personal document folders.' },
+      { title: 'Music/Movies', query: 'intitle:"index of" "mp3" OR "avi" OR "mkv"', description: 'Media file directories.' },
+      { title: 'Source Code', query: 'intitle:"index of" "src" OR "source"', description: 'Source code directories.' },
+      { title: 'Logs Directory', query: 'intitle:"index of" "logs"', description: 'Server log directories.' },
+      { title: 'Database Directory', query: 'intitle:"index of" "db" OR "database"', description: 'Database file directories.' },
+      { title: 'Keys Directory', query: 'intitle:"index of" "keys" OR "certs"', description: 'Cryptographic key directories.' },
+      { title: 'Private Directory', query: 'intitle:"index of" "private"', description: 'Folders named private.' },
+      { title: 'Conf Directory', query: 'intitle:"index of" "conf" OR "config"', description: 'Configuration folders.' },
+      { title: 'Etc Directory', query: 'intitle:"index of" "etc"', description: 'System configuration directories.' },
+      { title: 'Bin Directory', query: 'intitle:"index of" "bin"', description: 'Binary executable directories.' },
+      { title: 'Home Directory', query: 'intitle:"index of" "home"', description: 'User home directories.' },
+      { title: 'Root Directory', query: 'intitle:"index of" "root"', description: 'Root user directories.' },
+      { title: 'Temp Directory', query: 'intitle:"index of" "tmp" OR "temp"', description: 'Temporary file directories.' }
+    ]
+  }
+];
